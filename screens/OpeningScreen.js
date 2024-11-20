@@ -9,12 +9,18 @@ const OpeningScreen = ({ navigation }) => {
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('Login')} // Navigate to Login Screen
-      >
-        <Text style={styles.buttonText}>Log In</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Sign In</Text>
-      </TouchableOpacity>
+    >
+  <Text style={styles.buttonText}>Log In</Text>
+</TouchableOpacity>
+
+    <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('SignUp')} // Navigate to Sign Up Screen
+    >
+  <Text style={styles.buttonText}>Sign Up</Text>
+</TouchableOpacity>
+
+
     </View>
   );
 };
