@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-const SignUpScreen = () => {
+const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -59,6 +59,17 @@ const SignUpScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
+
+      {/* Log In Link */}
+      <Text style={styles.linkText}>
+        Already created an account?{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('Login')}
+        >
+          Log In
+        </Text>
+      </Text>
     </View>
   );
 };
@@ -105,6 +116,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  linkText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#000',
+  },
+  link: {
+    color: '#800020', // Burgundy for the link
+    fontWeight: 'bold',
   },
 });
 

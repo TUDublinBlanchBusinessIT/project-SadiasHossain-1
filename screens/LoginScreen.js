@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -11,15 +11,19 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Logo Image */}
+      {/* Logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
       <Text style={styles.title}>Log In</Text>
+
+      {/* Username Input */}
       <TextInput
         style={styles.input}
         placeholder="Username"
         value={username}
         onChangeText={(text) => setUsername(text)}
       />
+
+      {/* Password Input */}
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -27,9 +31,22 @@ const LoginScreen = () => {
         value={password}
         onChangeText={(text) => setPassword(text)}
       />
+
+      {/* Log In Button */}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log In</Text>
       </TouchableOpacity>
+
+      {/* Sign Up Link */}
+      <Text style={styles.linkText}>
+        Not signed in?{' '}
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('SignUp')}
+        >
+          Sign Up
+        </Text>
+      </Text>
     </View>
   );
 };
@@ -76,6 +93,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  linkText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#000',
+  },
+  link: {
+    color: '#800020', // Burgundy for the link
+    fontWeight: 'bold',
   },
 });
 
