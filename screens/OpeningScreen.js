@@ -5,10 +5,14 @@ const OpeningScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
-      <TouchableOpacity style={styles.button} onPress={() => alert('Navigate to Login')}>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('Login')} // Navigate to Login Screen
+      >
         <Text style={styles.buttonText}>Log In</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => alert('Navigate to Sign In')}>
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
     </View>
