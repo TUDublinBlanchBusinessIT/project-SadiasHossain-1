@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig'; // Import Firestore database
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -7,12 +9,25 @@ const SignUpScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (password !== confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
-    alert(`Email: ${email}\nUsername: ${username}\nPassword: ${password}`);
+
+    try {
+      // Add user data to Firestore
+      const docRef = await addDoc(collection(db, 'users'), {
+        email: email,
+        username: username,
+      });
+      console.log('User added with ID: ', docRef.id);
+      alert('User successfully registered!');
+      navigation.navigate('Login'); // Redirect to Login after successful registration
+    } catch (e) {
+      console.error('Error adding user: ', e);
+      alert('Error while signing up. Please try again.');
+    }
   };
 
   return (
