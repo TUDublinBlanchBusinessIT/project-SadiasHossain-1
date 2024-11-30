@@ -2,8 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import OpeningScreen from './screens/OpeningScreen';
-import LoginScreen from './screens/LoginScreen'; // Import the new Login Screen
+import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import HomeScreen from './screens/HomeScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -18,12 +20,17 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={LoginScreen}
-          options={{ title: 'Log In' }} // Adds a header with "Log In" text
+          options={{ title: 'Log In' }}
         />
         <Stack.Screen
           name="SignUp"
           component={SignUpScreen}
           options={{ title: 'Sign Up' }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

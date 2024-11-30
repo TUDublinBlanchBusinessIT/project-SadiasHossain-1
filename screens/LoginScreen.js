@@ -6,7 +6,8 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    alert(`Username: ${username}, Password: ${password}`);
+    // If login is successful, navigate to Home screen
+    navigation.navigate('Home');
   };
 
   return (
@@ -42,7 +43,7 @@ const LoginScreen = ({ navigation }) => {
         Not signed in?{' '}
         <Text
           style={styles.link}
-          onPress={() => navigation.navigate('SignUp')}
+          onPress={() => navigation.navigate('SignUp')} // Navigate to Sign Up page
         >
           Sign Up
         </Text>
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     height: undefined,
     aspectRatio: 1,
     resizeMode: 'contain',
-    marginBottom: 20
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

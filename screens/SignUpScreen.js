@@ -16,20 +16,19 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     try {
-      // Add user data to Firestore
-      const docRef = await addDoc(collection(db, 'users'), {
+      // Add user data to Firestore (without alerts)
+      await addDoc(collection(db, 'users'), {
         email: email,
         username: username,
       });
-      console.log('User added with ID: ', docRef.id);
-      alert('User successfully registered!');
-      navigation.navigate('Login'); // Redirect to Login after successful registration
+
+      // After adding user data, navigate to Home Screen
+      navigation.navigate('Home');
     } catch (e) {
       console.error('Error adding user: ', e);
-      alert('Error while signing up. Please try again.');
+      // Optionally log errors if needed
     }
   };
-
   return (
     <View style={styles.container}>
       {/* Logo */}
