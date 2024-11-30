@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
 
 // Dummy Data for Products
 const products = [
@@ -10,6 +10,7 @@ const products = [
     originalPrice: 100,
     discountPrice: 70,
     isOutOfStock: false,
+    link: 'https://www.tesco.ie/groceries/en-IE/products/303544117',
   },
   {
     id: 2,
@@ -18,6 +19,7 @@ const products = [
     originalPrice: 120,
     discountPrice: 90,
     isOutOfStock: false,
+    link: 'https://www.dunnesstoresgrocery.com/sm/delivery/rsid/258/product/avonmore-fresh-milk-2l-id-100130059/',
   },
   {
     id: 3,
@@ -26,10 +28,25 @@ const products = [
     originalPrice: 150,
     discountPrice: 100,
     isOutOfStock: true,
+    link: 'https://www.lidl-ni.co.uk/p/authentic-greek-yogurt/p10007151',
   },
 ];
 
 const HomeScreen = ({ navigation }) => {
+  // Handle URL opening
+  const handleOpenURL = async (url) => {
+    try {
+      const supported = await Linking.canOpenURL(url); // Check if the URL can be opened
+      if (supported) {
+        await Linking.openURL(url); // Open the URL in a browser
+      } else {
+        Alert.alert('Error', `Cannot open the URL: ${url}`);
+      }
+    } catch (error) {
+      Alert.alert('Error', `An error occurred: ${error.message}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Logo */}
@@ -69,13 +86,16 @@ const HomeScreen = ({ navigation }) => {
             key={product.id}
             style={[styles.tableCell, index % 3 === 0 && styles.newRow]}
           >
-            {/* Product Image */}
-            <View style={styles.imageContainer}>
+            {/* Clickable Image */}
+            <TouchableOpacity
+              onPress={() => handleOpenURL(product.link)} // Open the URL on click
+              style={styles.imageContainer}
+            >
               <Image source={product.image} style={styles.productImage} />
               {product.isOutOfStock && (
                 <Text style={styles.outOfStockText}>Out of Stock</Text>
               )}
-            </View>
+            </TouchableOpacity>
 
             {/* Product Description and Price */}
             <View style={styles.productDetails}>
@@ -166,7 +186,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     width: '100%',
-    height: 160, // Consistent height for all images
+    height: 160,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
