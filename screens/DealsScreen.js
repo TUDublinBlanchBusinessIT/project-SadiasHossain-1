@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text,Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 const DealsScreen = () => {
   const deals = [
@@ -13,8 +13,33 @@ const DealsScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Text style={styles.header}>SHOPSMART</Text>
+      {/* Logo */}
+      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+
+      {/* Navigation Bar */}
+      <View style={styles.navbar}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home')}
+          style={[styles.navItem, styles.navItemFirst]}
+        >
+          <Text style={styles.navText}>Home</Text>
+        </TouchableOpacity>
+        <View style={styles.navDivider} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Deals')}
+          style={styles.navItem}
+        >
+          <Text style={styles.navText}>Deals</Text>
+        </TouchableOpacity>
+        <View style={styles.navDivider} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile')}
+          style={[styles.navItem, styles.navItemLast]}
+        >
+          <Text style={styles.navText}>Profile</Text>
+        </TouchableOpacity>
+      </View>
+
 
       {/* Search Bar */}
       <TextInput
@@ -50,16 +75,50 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#800020',
-    textAlign: 'center',
+  logo: {
+    width: 250,
+    height: undefined,
+    aspectRatio: 1,
+    resizeMode: 'contain',
     marginBottom: 20,
+    alignSelf: 'center',
+  },
+  navbar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: '#800020', // Burgundy background color
+    borderRadius: 10,
+    marginBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+  },
+  navItem: {
+    paddingVertical: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navItemFirst: {
+    borderLeftWidth: 0,
+  },
+  navItemLast: {
+    borderRightWidth: 0,
+  },
+  navText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  navDivider: {
+    width: 1,
+    backgroundColor: 'white',
+    height: '60%',
+    alignSelf: 'center',
+    marginHorizontal: 10,
   },
   searchBar: {
     height: 40,
-    borderColor: '#ddd',
+    width: 350,
+    borderColor: 'black',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -69,6 +128,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    width:'35%',
+    height: '40%',
+    alignSelf: 'center'
+
   },
   dealCard: {
     width: '45%',
