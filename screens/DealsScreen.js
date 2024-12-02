@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text,Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 
-const DealsScreen = () => {
+const DealsScreen = ({ navigation }) => {
   const deals = [
     { id: 1, text: 'Claim a 20% gift card from any Convenience stores' },
     { id: 2, text: 'Claim a 10% off on any $50 purchases' },
@@ -10,6 +10,16 @@ const DealsScreen = () => {
     { id: 5, text: 'Claim a 20% gift card from any Convenience stores' },
     { id: 6, text: 'Claim a 10% off on any $50 purchases' },
   ];
+
+  // Handle saving the coupon
+  const handleSaveCoupon = () => {
+    if (handleSaveCoupon = handleSaveCoupon){
+        alert('Coupon saved', 'Your coupon has been successfully saved.');
+        return;
+
+    }
+    Alert.alert('Coupon saved', 'Your coupon has been successfully saved.');
+  };
 
   return (
     <View style={styles.container}>
@@ -40,7 +50,6 @@ const DealsScreen = () => {
         </TouchableOpacity>
       </View>
 
-
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
@@ -58,7 +67,7 @@ const DealsScreen = () => {
               <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>No</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity style={styles.button} onPress={handleSaveCoupon}>
                 <Text style={styles.buttonText}>Yes</Text>
               </TouchableOpacity>
             </View>
@@ -117,21 +126,20 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    width: 350,
+    width: 300,
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 10,
     marginBottom: 20,
+    alignSelf: 'center', // Center the search bar
   },
   dealsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    width:'35%',
-    height: '40%',
-    alignSelf: 'center'
-
+    width: '90%',
+    alignSelf: 'center', // Center the deals container
   },
   dealCard: {
     width: '45%',
