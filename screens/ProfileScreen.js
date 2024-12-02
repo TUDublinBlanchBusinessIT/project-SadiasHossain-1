@@ -1,51 +1,76 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { getAuth } from 'firebase/auth';
 
 const ProfileScreen = ({ navigation }) => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false); // Initialize showSubscription
+
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      setUserInfo({
+        username: user.displayName || 'User',
+        email: user.email || 'Not Available',
+      });
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
-      {/* Navigation Bar */}
+      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
       <View style={styles.navbar}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
-          style={[styles.navItem, styles.navItemFirst]}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.navItem}>
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-        <View style={styles.navDivider} />
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Deals')}
-          style={styles.navItem}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate('Deals')} style={styles.navItem}>
           <Text style={styles.navText}>Deals</Text>
         </TouchableOpacity>
-        <View style={styles.navDivider} />
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Profile')}
-          style={[styles.navItem, styles.navItemLast]}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.navItem}>
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
-        <View style={styles.profileImage}>
-          <Text style={styles.addIcon}>+</Text>
+      <View style={styles.profileImageContainer}>
+        <View style={styles.profileCircle}>
+          <Text style={styles.profileText}>+</Text>
         </View>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Account Information</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Account Information</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Subscription</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutButton}>
-          <Text style={styles.logoutButtonText}>Log Out</Text>
-        </TouchableOpacity>
       </View>
+
+      {/* Username Button */}
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>{userInfo?.username || 'Guest'}</Text>
+      </TouchableOpacity>
+
+      {/* Account Information Button */}
+      <TouchableOpacity style={styles.button} onPress={() => setShowDetails(!showDetails)}>
+        <Text style={styles.buttonText}>Account Information</Text>
+      </TouchableOpacity>
+      {showDetails && (
+        <View style={styles.detailsContainer}>
+          <Text style={styles.detailsText}>Email: {userInfo?.email}</Text>
+          <Text style={styles.detailsText}>Username: {userInfo?.username}</Text>
+        </View>
+      )}
+
+      {/* Subscription Button */}
+      <TouchableOpacity style={styles.button} onPress={() => setShowSubscription(!showSubscription)}>
+        <Text style={styles.buttonText}>Subscription</Text>
+      </TouchableOpacity>
+      {showSubscription && (
+        <View style={styles.detailsContainer}>
+          <Text style={styles.detailsText}>Your subscription plan: Premium</Text>
+          <Text style={styles.detailsText}>Renewal Date: 01/01/2025</Text>
+        </View>
+      )}
+
+      {/* Log Out Button */}
+      <TouchableOpacity style={[styles.button, styles.logoutButton]}>
+        <Text style={styles.logoutText}>Log Out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -53,14 +78,21 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff',
+  },
+  logo: {
+    width: 250,
+    height: undefined,
+    aspectRatio: 1,
+    resizeMode: 'contain',
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   navbar: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: '#800020',
+    backgroundColor: '#800020', // Burgundy background color
     borderRadius: 10,
     marginBottom: 20,
     paddingVertical: 10,
@@ -71,29 +103,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  navItemFirst: {
-    borderLeftWidth: 0,
-  },
-  navItemLast: {
-    borderRightWidth: 0,
-  },
   navText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  navDivider: {
-    width: 1,
-    backgroundColor: 'white',
-    height: '60%',
-    alignSelf: 'center',
-    marginHorizontal: 10,
-  },
-  profileSection: {
-    flex: 1,
+  profileImageContainer: {
     alignItems: 'center',
+    marginVertical: 20,
   },
-  profileImage: {
+  profileCircle: {
     width: 100,
     height: 100,
     borderRadius: 50,
@@ -101,37 +120,46 @@ const styles = StyleSheet.create({
     borderColor: '#800020',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  addIcon: {
-    fontSize: 24,
+  profileText: {
+    fontSize: 36,
     color: '#800020',
+    fontWeight: 'bold',
   },
   button: {
-    width: '80%',
     backgroundColor: '#800020',
-    paddingVertical: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginVertical: 10,
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  detailsContainer: {
+    backgroundColor: '#f9f9f9',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  detailsText: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 5,
   },
   logoutButton: {
-    marginTop: 20,
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: '#800020',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 40,
   },
-  logoutButtonText: {
+  logoutText: {
     color: '#800020',
     fontWeight: 'bold',
-    fontSize: 16,
   },
 });
 
