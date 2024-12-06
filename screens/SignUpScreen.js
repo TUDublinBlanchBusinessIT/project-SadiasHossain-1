@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebaseConfig'; // Import Firestore database
+import { db } from '../firebaseConfig';
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -16,26 +16,25 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     try {
-      // Add user data to Firestore (without alerts)
+      // Add user data to Firestore
       await addDoc(collection(db, 'users'), {
         email: email,
         username: username,
       });
 
-      // After adding user data, navigate to Home Screen
-      navigation.navigate('Home');
+      // Navigate to HomeScreen with the username
+      navigation.navigate('Home', { username });
     } catch (e) {
       console.error('Error adding user: ', e);
-      // Optionally log errors if needed
+      alert('An error occurred during sign-up. Please try again.');
     }
   };
+
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
       <Text style={styles.title}>Sign Up</Text>
 
-      {/* Email Input */}
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -43,7 +42,6 @@ const SignUpScreen = ({ navigation }) => {
         onChangeText={(text) => setEmail(text)}
       />
 
-      {/* Username Input */}
       <TextInput
         style={styles.input}
         placeholder="Create Username"
@@ -51,7 +49,6 @@ const SignUpScreen = ({ navigation }) => {
         onChangeText={(text) => setUsername(text)}
       />
 
-      {/* Password Input */}
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -60,7 +57,6 @@ const SignUpScreen = ({ navigation }) => {
         onChangeText={(text) => setPassword(text)}
       />
 
-      {/* Confirm Password Input */}
       <TextInput
         style={styles.input}
         placeholder="Re-write Password"
@@ -69,18 +65,13 @@ const SignUpScreen = ({ navigation }) => {
         onChangeText={(text) => setConfirmPassword(text)}
       />
 
-      {/* Sign Up Button */}
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
 
-      {/* Log In Link */}
       <Text style={styles.linkText}>
         Already created an account?{' '}
-        <Text
-          style={styles.link}
-          onPress={() => navigation.navigate('Login')}
-        >
+        <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
           Log In
         </Text>
       </Text>

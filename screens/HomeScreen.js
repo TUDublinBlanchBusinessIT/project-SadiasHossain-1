@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,9 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore'; // Firestore functions
-import { db } from '../firebaseConfig'; // Firestore database instance
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
-// Dummy product data
 const products = [
   {
     id: 1,
@@ -42,23 +41,27 @@ const products = [
   },
 ];
 
-const HomeScreen = ({ navigation }) => {
-  const [favorites, setFavorites] = useState([]); // State to track favorited items
+const HomeScreen = ({ navigation, route }) => {
+  const [favorites, setFavorites] = useState([]);
+  const [username, setUsername] = useState('Guest');
 
-  // ADD THIS FUNCTION HERE
+  // Retrieve the username passed from Login or SignUp
+  useEffect(() => {
+    if (route.params && route.params.username) {
+      setUsername(route.params.username);
+    }
+  }, [route.params]);
+
   const handleFavoriteToggle = async (product) => {
-    const username = 'Guest'; // Replace this with dynamic username fetching later
     const productIsFavorited = favorites.includes(product.id);
     const favoriteRef = doc(db, 'favorites', `${username}_${product.id}`);
 
     try {
       if (productIsFavorited) {
-        // Remove from favorites
         setFavorites(favorites.filter((id) => id !== product.id));
         await deleteDoc(favoriteRef);
         Alert.alert('Favorite Removed', `${product.description} has been removed from your favorites.`);
       } else {
-        // Add to favorites
         setFavorites([...favorites, product.id]);
         await setDoc(favoriteRef, {
           username,
@@ -123,7 +126,6 @@ const HomeScreen = ({ navigation }) => {
                 <Text style={styles.discountPrice}>${product.discountPrice}</Text>
               </View>
 
-              {/* Add Favorite Button Here */}
               <TouchableOpacity
                 onPress={() => handleFavoriteToggle(product)}
                 style={styles.heartIcon}

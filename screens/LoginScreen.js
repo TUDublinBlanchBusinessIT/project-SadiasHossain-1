@@ -6,17 +6,16 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // If login is successful, navigate to Home screen
-    navigation.navigate('Home');
+    // For demonstration purposes, navigate to HomeScreen with the username
+    // In a real app, you'd verify the username/password with Firebase Auth here
+    navigation.navigate('Home', { username });
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
       <Text style={styles.title}>Log In</Text>
 
-      {/* Username Input */}
       <TextInput
         style={styles.input}
         placeholder="Username"
@@ -24,7 +23,6 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={(text) => setUsername(text)}
       />
 
-      {/* Password Input */}
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -33,18 +31,13 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={(text) => setPassword(text)}
       />
 
-      {/* Log In Button */}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log In</Text>
       </TouchableOpacity>
 
-      {/* Sign Up Link */}
       <Text style={styles.linkText}>
         Not signed in?{' '}
-        <Text
-          style={styles.link}
-          onPress={() => navigation.navigate('SignUp')} // Navigate to Sign Up page
-        >
+        <Text style={styles.link} onPress={() => navigation.navigate('SignUp')}>
           Sign Up
         </Text>
       </Text>
