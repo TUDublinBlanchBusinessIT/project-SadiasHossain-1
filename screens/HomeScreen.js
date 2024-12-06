@@ -1,13 +1,23 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+  Alert,
+} from 'react-native';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore'; // Firestore functions
+import { db } from '../firebaseConfig'; // Firestore database instance
 
-// Dummy Data for Products
+// Dummy product data
 const products = [
   {
     id: 1,
     image: require('../assets/bread.jpg'),
-    description: "Bread",
-    originalPrice: 2.00,
+    description: 'Bread',
+    originalPrice: 2.0,
     discountPrice: 0.99,
     isOutOfStock: false,
     link: 'https://www.tesco.ie/groceries/en-IE/products/303544117',
@@ -15,8 +25,8 @@ const products = [
   {
     id: 2,
     image: require('../assets/Milk.jpg'),
-    description: "Milk",
-    originalPrice: 3.20,
+    description: 'Milk',
+    originalPrice: 3.2,
     discountPrice: 2.69,
     isOutOfStock: false,
     link: 'https://www.dunnesstoresgrocery.com/sm/delivery/rsid/258/product/avonmore-fresh-milk-2l-id-100130059/',
@@ -24,7 +34,7 @@ const products = [
   {
     id: 3,
     image: require('../assets/Yogurt.png'),
-    description: "Yogurt",
+    description: 'Yogurt',
     originalPrice: 2.19,
     discountPrice: 1.64,
     isOutOfStock: true,
@@ -33,26 +43,41 @@ const products = [
 ];
 
 const HomeScreen = ({ navigation }) => {
-  // Handle URL opening
-  const handleOpenURL = async (url) => {
+  const [favorites, setFavorites] = useState([]); // State to track favorited items
+
+  // ADD THIS FUNCTION HERE
+  const handleFavoriteToggle = async (product) => {
+    const username = 'Guest'; // Replace this with dynamic username fetching later
+    const productIsFavorited = favorites.includes(product.id);
+    const favoriteRef = doc(db, 'favorites', `${username}_${product.id}`);
+
     try {
-      const supported = await Linking.canOpenURL(url); // Check if the URL can be opened
-      if (supported) {
-        await Linking.openURL(url); // Open the URL in a browser
+      if (productIsFavorited) {
+        // Remove from favorites
+        setFavorites(favorites.filter((id) => id !== product.id));
+        await deleteDoc(favoriteRef);
+        Alert.alert('Favorite Removed', `${product.description} has been removed from your favorites.`);
       } else {
-        Alert.alert('Error', `Cannot open the URL: ${url}`);
+        // Add to favorites
+        setFavorites([...favorites, product.id]);
+        await setDoc(favoriteRef, {
+          username,
+          productId: product.id,
+          productName: product.description,
+          favoritedAt: new Date().toISOString(),
+        });
+        Alert.alert('Favorite Added', `${product.description} has been added to your favorites.`);
       }
     } catch (error) {
-      Alert.alert('Error', `An error occurred: ${error.message}`);
+      console.error('Error updating favorites: ', error);
+      Alert.alert('Error', 'Something went wrong while updating favorites.');
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
 
-      {/* Navigation Bar */}
       <View style={styles.navbar}>
         <TouchableOpacity
           onPress={() => navigation.navigate('Home')}
@@ -76,19 +101,13 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Trending Products Heading */}
       <Text style={styles.trendingHeading}>TRENDING PRODUCTS!!</Text>
 
-      {/* Table layout for Products */}
       <View style={styles.table}>
-        {products.map((product, index) => (
-          <View
-            key={product.id}
-            style={[styles.tableCell, index % 3 === 0 && styles.newRow]}
-          >
-            {/* Clickable Image */}
+        {products.map((product) => (
+          <View key={product.id} style={styles.tableCell}>
             <TouchableOpacity
-              onPress={() => handleOpenURL(product.link)} // Open the URL on click
+              onPress={() => Linking.openURL(product.link)}
               style={styles.imageContainer}
             >
               <Image source={product.image} style={styles.productImage} />
@@ -97,13 +116,22 @@ const HomeScreen = ({ navigation }) => {
               )}
             </TouchableOpacity>
 
-            {/* Product Description and Price */}
             <View style={styles.productDetails}>
               <Text style={styles.productDescription}>{product.description}</Text>
               <View style={styles.priceContainer}>
                 <Text style={styles.originalPrice}>${product.originalPrice}</Text>
                 <Text style={styles.discountPrice}>${product.discountPrice}</Text>
               </View>
+
+              {/* Add Favorite Button Here */}
+              <TouchableOpacity
+                onPress={() => handleFavoriteToggle(product)}
+                style={styles.heartIcon}
+              >
+                <Text style={{ color: favorites.includes(product.id) ? 'red' : 'gray', fontSize: 24 }}>
+                  ♥
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         ))}
@@ -219,7 +247,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center', // Center align prices
     alignItems: 'center',
   },
-  
   originalPrice: {
     fontSize: 16,
     color: '#888',
@@ -230,6 +257,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: 'green',
+  },
+  heartIcon: {
+    marginTop: 10,
+    alignItems: 'center',
   },
 });
 
