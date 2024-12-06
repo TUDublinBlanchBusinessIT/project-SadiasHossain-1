@@ -1,95 +1,96 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { getAuth, signOut } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';  // For navigation
 
-  import React, { useState, useEffect } from 'react';
-  import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-  import { getAuth } from 'firebase/auth';
+const ProfileScreen = ({ navigation }) => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false); // Initialize showSubscription
+  const auth = getAuth(); // Firebase Authentication instance
   
-  const ProfileScreen = ({ navigation }) => {
-    const [userInfo, setUserInfo] = useState(null);
-    const [showDetails, setShowDetails] = useState(false);
-    const [showSubscription, setShowSubscription] = useState(false); // Initialize showSubscription
-  
-    useEffect(() => {
-      const auth = getAuth();
-      const user = auth.currentUser;
-  
-      if (user) {
-        setUserInfo({
-          username: user.displayName || 'User',
-          email: user.email || 'Not Available',
-        });
-      }
-    }, []);
-  
-    return (
-        <View style={styles.container}>
-          {/* Logo */}
-          <Image source={require('../assets/logo.jpg')} style={styles.logo} />
-    
-          {/* Navigation Bar */}
-          <View style={styles.navbar}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Home')}
-              style={[styles.navItem, styles.navItemFirst]}
-            >
-              <Text style={styles.navText}>Home</Text>
-            </TouchableOpacity>
-            <View style={styles.navDivider} />
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Deals')}
-              style={styles.navItem}
-            >
-              <Text style={styles.navText}>Deals</Text>
-            </TouchableOpacity>
-            <View style={styles.navDivider} />
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Profile')}
-              style={[styles.navItem, styles.navItemLast]}
-            >
-              <Text style={styles.navText}>Profile</Text>
-            </TouchableOpacity>
-          </View>
-  
-        <View style={styles.profileImageContainer}>
-          <View style={styles.profileCircle}>
-            <Text style={styles.profileText}>+</Text>
-          </View>
-        </View>
-  
-        {/* Username Button */}
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>{userInfo?.username || 'Guest'}</Text>
+  // Log out user and navigate to Opening screen
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      Alert.alert('Logged out', 'You have been logged out successfully.');
+      navigation.navigate('Opening');  // Navigate to OpeningScreen after logout
+    } catch (error) {
+      console.error('Error during logout:', error);
+      Alert.alert('Logout Error', 'Something went wrong while logging out.');
+    }
+  };
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      setUserInfo({
+        username: user.displayName || 'User',
+        email: user.email || 'Not Available',
+      });
+    }
+  }, [auth]);
+
+  return (
+    <View style={styles.container}>
+      {/* Logo */}
+      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+
+      {/* Navigation Bar */}
+      <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={[styles.navItem, styles.navItemFirst]}>
+          <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-  
-        {/* Account Information Button */}
-        <TouchableOpacity style={styles.button} onPress={() => setShowDetails(!showDetails)}>
-          <Text style={styles.buttonText}>Account Information</Text>
+        <View style={styles.navDivider} />
+        <TouchableOpacity onPress={() => navigation.navigate('Deals')} style={styles.navItem}>
+          <Text style={styles.navText}>Deals</Text>
         </TouchableOpacity>
-        {showDetails && (
-          <View style={styles.detailsContainer}>
-            <Text style={styles.detailsText}>Email: {userInfo?.email}</Text>
-            <Text style={styles.detailsText}>Username: {userInfo?.username}</Text>
-          </View>
-        )}
-  
-        {/* Subscription Button */}
-        <TouchableOpacity style={styles.button} onPress={() => setShowSubscription(!showSubscription)}>
-          <Text style={styles.buttonText}>Subscription</Text>
-        </TouchableOpacity>
-        {showSubscription && (
-          <View style={styles.detailsContainer}>
-            <Text style={styles.detailsText}>Your subscription plan: Premium</Text>
-            <Text style={styles.detailsText}>Renewal Date: 01/01/2025</Text>
-          </View>
-        )}
-  
-        {/* Log Out Button */}
-        <TouchableOpacity style={[styles.button, styles.logoutButton]}>
-          <Text style={styles.logoutText}>Log Out</Text>
+        <View style={styles.navDivider} />
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={[styles.navItem, styles.navItemLast]}>
+          <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
-    );
-  };
-  
+
+      <View style={styles.profileImageContainer}>
+        <View style={styles.profileCircle}>
+          <Text style={styles.profileText}>+</Text>
+        </View>
+      </View>
+
+      {/* Username Button */}
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>{userInfo?.username || 'Guest'}</Text>
+      </TouchableOpacity>
+
+      {/* Account Information Button */}
+      <TouchableOpacity style={styles.button} onPress={() => setShowDetails(!showDetails)}>
+        <Text style={styles.buttonText}>Account Information</Text>
+      </TouchableOpacity>
+      {showDetails && (
+        <View style={styles.detailsContainer}>
+          <Text style={styles.detailsText}>Email: {userInfo?.email}</Text>
+          <Text style={styles.detailsText}>Username: {userInfo?.username}</Text>
+        </View>
+      )}
+
+      {/* Subscription Button */}
+      <TouchableOpacity style={styles.button} onPress={() => setShowSubscription(!showSubscription)}>
+        <Text style={styles.buttonText}>Subscription</Text>
+      </TouchableOpacity>
+      {showSubscription && (
+        <View style={styles.detailsContainer}>
+          <Text style={styles.detailsText}>Your subscription plan: Premium</Text>
+          <Text style={styles.detailsText}>Renewal Date: 01/01/2025</Text>
+        </View>
+      )}
+
+      {/* Log Out Button */}
+      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Log Out</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
   const styles = StyleSheet.create({
     container: {
       flex: 1,
