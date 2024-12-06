@@ -1,24 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 const DealsScreen = ({ navigation }) => {
-  const deals = [
+  const [deals, setDeals] = useState([
     { id: 1, text: 'Claim a 20% gift card from any Convenience stores' },
     { id: 2, text: 'Claim a 10% off on any $50 purchases' },
     { id: 3, text: 'Claim a 20% gift card from any Convenience stores' },
     { id: 4, text: 'Claim a 10% off on any $50 purchases' },
     { id: 5, text: 'Claim a 20% gift card from any Convenience stores' },
     { id: 6, text: 'Claim a 10% off on any $50 purchases' },
-  ];
+  ]);
+  const [userInfo, setUserInfo] = useState(null);
+  const [savedCoupons, setSavedCoupons] = useState([]);
 
-  // Handle saving the coupon
-  const handleSaveCoupon = () => {
-    if (handleSaveCoupon = handleSaveCoupon){
-        alert('Coupon saved', 'Your coupon has been successfully saved.');
-        return;
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
+    if (user) {
+      setUserInfo({
+        username: user.displayName || 'Guest',
+        email: user.email || 'Not Available',
+      });
+
+      fetchUserCoupons(user.uid); // Fetch saved coupons for the user
     }
-    Alert.alert('Coupon saved', 'Your coupon has been successfully saved.');
+  }, []);
+
+  // Fetch saved coupons from Firestore
+  const fetchUserCoupons = async (userId) => {
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        setSavedCoupons(data.savedCoupons || []); // Load saved coupons
+      }
+    } catch (error) {
+      console.error('Error fetching user coupons:', error);
+    }
+  };
+
+  // Save coupon to Firestore
+  const saveCoupon = async (couponId, userId) => {
+    const updatedCoupons = [...savedCoupons, couponId];
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      await updateDoc(userDocRef, {
+        savedCoupons: updatedCoupons,
+      });
+      setSavedCoupons(updatedCoupons);
+      Alert.alert('Coupon saved', 'Your coupon has been successfully saved.');
+    } catch (error) {
+      console.error('Error saving coupon:', error);
+      Alert.alert('Error', 'There was an issue saving the coupon.');
+    }
+  };
+
+  // Delete coupon
+  const deleteCoupon = (couponId) => {
+    const filteredDeals = deals.filter(deal => deal.id !== couponId);
+    setDeals(filteredDeals); // Remove the coupon from the list of displayed deals
+    Alert.alert('Coupon removed', 'The coupon has been removed from your list.');
   };
 
   return (
@@ -64,10 +111,16 @@ const DealsScreen = ({ navigation }) => {
             <Text style={styles.dealHeader}>DISCOUNT!!!</Text>
             <Text style={styles.dealText}>{deal.text}</Text>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => deleteCoupon(deal.id)}
+              >
                 <Text style={styles.buttonText}>No</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={handleSaveCoupon}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => saveCoupon(deal.id, userInfo?.username)}
+              >
                 <Text style={styles.buttonText}>Yes</Text>
               </TouchableOpacity>
             </View>
