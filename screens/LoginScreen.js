@@ -1,14 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // For demonstration purposes, navigate to HomeScreen with the username
-    // In a real app, you'd verify the username/password with Firebase Auth here
-    navigation.navigate('Home', { username });
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert('Error', 'Please enter both username and password.');
+      return;
+    }
+
+    try {
+      // Generate a placeholder email
+      const email = `${username}@example.com`;
+
+      // Save the user’s information to Firestore
+      const userDocRef = doc(db, 'users', username);
+      await setDoc(
+        userDocRef,
+        { username, email }, // Save username and placeholder email
+        { merge: true } // Avoid overwriting existing data
+      );
+
+      console.log('User data saved to Firestore:', { username, email });
+
+      // Navigate to HomeScreen with the username
+      navigation.navigate('Home', { username });
+    } catch (error) {
+      console.error('Error logging in:', error);
+      Alert.alert('Error', 'Login failed. Please try again.');
+    }
   };
 
   return (
@@ -22,7 +46,6 @@ const LoginScreen = ({ navigation }) => {
         value={username}
         onChangeText={(text) => setUsername(text)}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Password"
