@@ -1,57 +1,61 @@
+// Import necessary React and React Native components
 import React from 'react';
-import { View, Text, Image, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
+// OpeningScreen component
 const OpeningScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
+      {/* App logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
 
+      {/* Navigate to Login Screen */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Login')} // Navigate to Login Screen
-    >
-  <Text style={styles.buttonText}>Log In</Text>
-</TouchableOpacity>
+        onPress={() => navigation.navigate('Login')}
+      >
+        <Text style={styles.buttonText}>Log In</Text>
+      </TouchableOpacity>
 
-    <TouchableOpacity
+      {/* Navigate to Sign Up Screen */}
+      <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('SignUp')} // Navigate to Sign Up Screen
-    >
-  <Text style={styles.buttonText}>Sign Up</Text>
-</TouchableOpacity>
-
-
+        onPress={() => navigation.navigate('SignUp')}
+      >
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flex: 1, // Take up the full height of the screen
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+    backgroundColor: '#fff', // White background
   },
   logo: {
-    width: 250,
-    height: undefined,
-    aspectRatio: 1,
-    resizeMode: 'contain',
-    marginBottom: 20
+    width: 250, // Width of the logo
+    height: undefined, // Let aspect ratio control height
+    aspectRatio: 1, // Maintain 1:1 aspect ratio
+    resizeMode: 'contain', // Ensure the logo fits within the box
+    marginBottom: 20, // Space below the logo
   },
   button: {
-    backgroundColor: '#800020',
-    padding: 15,
-    borderRadius: 10,
-    width: '60%', // Reduce width to 60% of the screen
-    maxWidth: 300,
-    marginVertical: 10,
-    alignItems: 'center',
+    backgroundColor: '#800020', // Burgundy color for buttons
+    padding: 15, // Padding inside the button
+    borderRadius: 10, // Rounded corners for the button
+    width: '60%', // Button width is 60% of the screen
+    maxWidth: 300, // Maximum width for larger screens
+    marginVertical: 10, // Vertical spacing between buttons
+    alignItems: 'center', // Center the text horizontally
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    color: '#fff', // White text color
+    fontSize: 18, // Font size for the button text
+    fontWeight: '600', // Slightly bold text
   },
 });
 

@@ -7,7 +7,7 @@ const ProfileScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false); // Initialize showSubscription
-  const auth = getAuth(); // Firebase Authentication instance
+  const auth = getAuth(); // Firebase Authentication 
   
   // Log out user and navigate to Opening screen
   const handleLogout = async () => {
@@ -50,17 +50,12 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
-
+      {/* Profile circle  */}
       <View style={styles.profileImageContainer}>
         <View style={styles.profileCircle}>
           <Text style={styles.profileText}>+</Text>
         </View>
       </View>
-
-      {/* Username Button */}
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>{userInfo?.username || 'Guest'}</Text>
-      </TouchableOpacity>
 
       {/* Account Information Button */}
       <TouchableOpacity style={styles.button} onPress={() => setShowDetails(!showDetails)}>

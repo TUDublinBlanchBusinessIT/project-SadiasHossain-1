@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
-  Alert,
-} from 'react-native';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore'; // Firebase Firestore functions
+import { db } from '../firebaseConfig'; // Firebase configuration
 
+// List of products to display on the home screen
 const products = [
   {
     id: 1,
@@ -41,46 +34,44 @@ const products = [
   },
 ];
 
+// Main HomeScreen component
 const HomeScreen = ({ navigation, route }) => {
-  const [favorites, setFavorites] = useState([]);
-  const [username, setUsername] = useState('Guest');
+  const [favorites, setFavorites] = useState([]); // State to track favorite products
 
-  // Retrieve the username passed from Login or SignUp
-  useEffect(() => {
-    if (route.params && route.params.username) {
-      setUsername(route.params.username);
-    }
-  }, [route.params]);
-
+  // Handle toggling a product as a favorite
   const handleFavoriteToggle = async (product) => {
-    const productIsFavorited = favorites.includes(product.id);
-    const favoriteRef = doc(db, 'favorites', `${username}_${product.id}`);
+    const productIsFavorited = favorites.includes(product.id); // Check if the product is already favorited
+    const favoriteRef = doc(db, 'favorites', `${username}_${product.id}`); // Firestore document reference
 
     try {
       if (productIsFavorited) {
+        // If already favorited, remove from the favorites list and delete from Firestore
         setFavorites(favorites.filter((id) => id !== product.id));
         await deleteDoc(favoriteRef);
         Alert.alert('Favorite Removed', `${product.description} has been removed from your favorites.`);
       } else {
+        // If not favorited, add to the favorites list and save to Firestore
         setFavorites([...favorites, product.id]);
         await setDoc(favoriteRef, {
           username,
           productId: product.id,
           productName: product.description,
-          favoritedAt: new Date().toISOString(),
+          favoritedAt: new Date().toISOString(), // Timestamp for when it was favorited
         });
         Alert.alert('Favorite Added', `${product.description} has been added to your favorites.`);
       }
     } catch (error) {
-      console.error('Error updating favorites: ', error);
+      console.error('Error updating favorites: ', error); // Log any errors
       Alert.alert('Error', 'Something went wrong while updating favorites.');
     }
   };
 
   return (
     <View style={styles.container}>
+      {/* App logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
 
+      {/* Navigation bar */}
       <View style={styles.navbar}>
         <TouchableOpacity
           onPress={() => navigation.navigate('Home')}
@@ -104,13 +95,16 @@ const HomeScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Trending products section */}
       <Text style={styles.trendingHeading}>TRENDING PRODUCTS!!</Text>
 
+      {/* Display products in a table layout */}
       <View style={styles.table}>
         {products.map((product) => (
           <View key={product.id} style={styles.tableCell}>
+            {/* Clickable product image */}
             <TouchableOpacity
-              onPress={() => Linking.openURL(product.link)}
+              onPress={() => Linking.openURL(product.link)} // Open product link in browser
               style={styles.imageContainer}
             >
               <Image source={product.image} style={styles.productImage} />
@@ -119,6 +113,7 @@ const HomeScreen = ({ navigation, route }) => {
               )}
             </TouchableOpacity>
 
+            {/* Product details and favorite button */}
             <View style={styles.productDetails}>
               <Text style={styles.productDescription}>{product.description}</Text>
               <View style={styles.priceContainer}>
@@ -126,10 +121,12 @@ const HomeScreen = ({ navigation, route }) => {
                 <Text style={styles.discountPrice}>${product.discountPrice}</Text>
               </View>
 
+              {/* Favorite heart button */}
               <TouchableOpacity
                 onPress={() => handleFavoriteToggle(product)}
                 style={styles.heartIcon}
               >
+                {/* Change color based on whether the product is favorited */}
                 <Text style={{ color: favorites.includes(product.id) ? 'red' : 'gray', fontSize: 24 }}>
                   ♥
                 </Text>
@@ -142,6 +139,7 @@ const HomeScreen = ({ navigation, route }) => {
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -159,7 +157,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: '#800020', // Burgundy background color
+    backgroundColor: '#800020',
     borderRadius: 10,
     marginBottom: 20,
     paddingVertical: 10,
@@ -169,17 +167,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  navItemFirst: {
-    borderLeftWidth: 0,
-  },
-  navItemLast: {
-    borderRightWidth: 0,
-  },
-  navText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   navDivider: {
     width: 1,
@@ -191,27 +178,26 @@ const styles = StyleSheet.create({
   trendingHeading: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#800020', // Burgundy color to match your theme
+    color: '#800020',
     textAlign: 'center',
     marginVertical: 20,
-    fontFamily: 'Roboto',
   },
   table: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignItems: 'flex-start', // Align items to the top
+    alignItems: 'flex-start',
   },
   tableCell: {
-    width: '30%', // Ensure equal width for all boxes
-    height: 320, // Fixed height for all product cards
+    width: '30%',
+    height: 320,
     alignItems: 'center',
-    justifyContent: 'flex-start', // Content aligned at the top
-    marginBottom: 20, // Space between rows
+    justifyContent: 'flex-start',
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 5,
-    padding: 10, // Consistent padding
+    padding: 10,
   },
   imageContainer: {
     position: 'relative',
@@ -236,17 +222,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   productImage: {
-    width: '100%', // Ensure the image fills the container width
-    height: '100%', // Ensure the image fills the container height
-    resizeMode: 'contain', // Maintain aspect ratio
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   productDetails: {
-    width: '100%', // Take full width of the container
+    width: '100%',
     alignItems: 'center',
   },
   priceContainer: {
     flexDirection: 'row',
-    justifyContent: 'center', // Center align prices
+    justifyContent: 'center',
     alignItems: 'center',
   },
   originalPrice: {

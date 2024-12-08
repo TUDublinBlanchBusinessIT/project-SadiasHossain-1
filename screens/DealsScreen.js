@@ -1,79 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { getAuth } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
 
+// Main DealsScreen component
 const DealsScreen = ({ navigation }) => {
+  // State for managing deals and user data
   const [deals, setDeals] = useState([
-    { id: 1, text: 'Claim a 20% gift card from any Convenience stores' },
-    { id: 2, text: 'Claim a 10% off on any $50 purchases' },
+    // List of deals displayed to the user
+    { id: 1, text: 'Claim a 5% gift card from any Convenience stores' },
+    { id: 2, text: 'Claim a 10% off on any €50 purchases' },
     { id: 3, text: 'Claim a 20% gift card from any Convenience stores' },
-    { id: 4, text: 'Claim a 10% off on any $50 purchases' },
-    { id: 5, text: 'Claim a 20% gift card from any Convenience stores' },
-    { id: 6, text: 'Claim a 10% off on any $50 purchases' },
+    { id: 4, text: 'Claim a 5% off on any €50 purchases' },
+    { id: 5, text: 'Claim a 25% gift card from any Convenience stores' },
+    { id: 6, text: 'Claim a 10% off on any €30 purchases' },
   ]);
-  const [userInfo, setUserInfo] = useState(null);
-  const [savedCoupons, setSavedCoupons] = useState([]);
 
-  useEffect(() => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (user) {
-      setUserInfo({
-        username: user.displayName || 'Guest',
-        email: user.email || 'Not Available',
-      });
-
-      fetchUserCoupons(user.uid); // Fetch saved coupons for the user
-    }
-  }, []);
-
-  // Fetch saved coupons from Firestore
-  const fetchUserCoupons = async (userId) => {
-    try {
-      const userDocRef = doc(db, 'users', userId);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        setSavedCoupons(data.savedCoupons || []); // Load saved coupons
-      }
-    } catch (error) {
-      console.error('Error fetching user coupons:', error);
-    }
-  };
-
-  // Save coupon to Firestore
-  const saveCoupon = async (couponId, userId) => {
-    const updatedCoupons = [...savedCoupons, couponId];
-    try {
-      const userDocRef = doc(db, 'users', userId);
-      await updateDoc(userDocRef, {
-        savedCoupons: updatedCoupons,
-      });
-      setSavedCoupons(updatedCoupons);
-      Alert.alert('Coupon saved', 'Your coupon has been successfully saved.');
-    } catch (error) {
-      console.error('Error saving coupon:', error);
-      Alert.alert('Error', 'There was an issue saving the coupon.');
-    }
-  };
-
-  // Delete coupon
+  // Delete a coupon from the displayed list
   const deleteCoupon = (couponId) => {
+    // Filter out the deleted coupon from the deals state
     const filteredDeals = deals.filter(deal => deal.id !== couponId);
-    setDeals(filteredDeals); // Remove the coupon from the list of displayed deals
-    Alert.alert('Coupon removed', 'The coupon has been removed from your list.');
+    setDeals(filteredDeals); // Update the displayed deals
+    Alert.alert('Coupon removed', 'The coupon has been removed from your list.'); // Show a removal alert
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
+      {/* Display the app logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
 
-      {/* Navigation Bar */}
+      {/* Navigation bar for Home, Deals, and Profile */}
       <View style={styles.navbar}>
         <TouchableOpacity
           onPress={() => navigation.navigate('Home')}
@@ -97,26 +51,28 @@ const DealsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
+      {/* Search bar */}
       <TextInput
         style={styles.searchBar}
         placeholder="Search"
         placeholderTextColor="#888"
       />
 
-      {/* Deals */}
+      {/* Display the list of deals */}
       <View style={styles.dealsContainer}>
         {deals.map((deal) => (
           <View key={deal.id} style={styles.dealCard}>
             <Text style={styles.dealHeader}>DISCOUNT!!!</Text>
             <Text style={styles.dealText}>{deal.text}</Text>
             <View style={styles.buttonContainer}>
+              {/* Button to delete the coupon */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => deleteCoupon(deal.id)}
               >
                 <Text style={styles.buttonText}>No</Text>
               </TouchableOpacity>
+              {/* Button to save the coupon */}
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => saveCoupon(deal.id, userInfo?.username)}
@@ -131,6 +87,7 @@ const DealsScreen = ({ navigation }) => {
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -148,7 +105,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: '#800020', // Burgundy background color
+    backgroundColor: '#800020',
     borderRadius: 10,
     marginBottom: 20,
     paddingVertical: 10,
@@ -158,17 +115,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  navItemFirst: {
-    borderLeftWidth: 0,
-  },
-  navItemLast: {
-    borderRightWidth: 0,
-  },
-  navText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   navDivider: {
     width: 1,
@@ -185,14 +131,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     marginBottom: 20,
-    alignSelf: 'center', // Center the search bar
+    alignSelf: 'center',
   },
   dealsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     width: '90%',
-    alignSelf: 'center', // Center the deals container
+    alignSelf: 'center',
   },
   dealCard: {
     width: '45%',
@@ -202,17 +148,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     alignItems: 'center',
-  },
-  dealHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 10,
-  },
-  dealText: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
