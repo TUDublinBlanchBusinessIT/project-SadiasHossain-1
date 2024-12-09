@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore'; // Firebase Firestore functions
-import { db } from '../firebaseConfig'; // Firebase configuration
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
-// List of products to display on the home screen
 const products = [
   {
     id: 1,
@@ -12,7 +11,6 @@ const products = [
     originalPrice: 2.0,
     discountPrice: 0.99,
     isOutOfStock: false,
-    link: 'https://www.tesco.ie/groceries/en-IE/products/303544117',
   },
   {
     id: 2,
@@ -21,7 +19,6 @@ const products = [
     originalPrice: 3.2,
     discountPrice: 2.69,
     isOutOfStock: false,
-    link: 'https://www.dunnesstoresgrocery.com/sm/delivery/rsid/258/product/avonmore-fresh-milk-2l-id-100130059/',
   },
   {
     id: 3,
@@ -30,48 +27,82 @@ const products = [
     originalPrice: 2.19,
     discountPrice: 1.64,
     isOutOfStock: true,
-    link: 'https://www.lidl-ni.co.uk/p/authentic-greek-yogurt/p10007151',
   },
 ];
 
-// Main HomeScreen component
 const HomeScreen = ({ navigation, route }) => {
-  const [favorites, setFavorites] = useState([]); // State to track favorite products
+  const [favorites, setFavorites] = useState([]);
+  const [username, setUsername] = useState('Guest');
 
-  // Handle toggling a product as a favorite
+  // Retrieve the username passed from Login or SignUp
+  useEffect(() => {
+    if (route.params && route.params.username) {
+      setUsername(route.params.username);
+    }
+  }, [route.params]);
+
+  // Fetch the user's favorites from Firestore
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      const userFavoritesRef = doc(db, 'favorites', username);
+
+      try {
+        const docSnap = await getDoc(userFavoritesRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setFavorites(data.favorites || []);
+        } else {
+          setFavorites([]);
+        }
+      } catch (error) {
+        console.error('Error fetching favorites: ', error);
+      }
+    };
+
+    if (username) {
+      fetchFavorites();
+    }
+  }, [username]);
+
   const handleFavoriteToggle = async (product) => {
-    const productIsFavorited = favorites.includes(product.id); // Check if the product is already favorited
-    const favoriteRef = doc(db, 'favorites', `${username}_${product.id}`); // Firestore document reference
+    const userFavoritesRef = doc(db, 'favorites', username);
 
     try {
+      const docSnap = await getDoc(userFavoritesRef);
+      const currentFavorites = docSnap.exists() ? docSnap.data().favorites || [] : [];
+      const productIsFavorited = currentFavorites.some((item) => item.productId === product.id);
+
       if (productIsFavorited) {
-        // If already favorited, remove from the favorites list and delete from Firestore
-        setFavorites(favorites.filter((id) => id !== product.id));
-        await deleteDoc(favoriteRef);
+        // Remove the product from favorites
+        const updatedFavorites = currentFavorites.filter((item) => item.productId !== product.id);
+        await setDoc(userFavoritesRef, { favorites: updatedFavorites }, { merge: true });
+        setFavorites(updatedFavorites);
         Alert.alert('Favorite Removed', `${product.description} has been removed from your favorites.`);
       } else {
-        // If not favorited, add to the favorites list and save to Firestore
-        setFavorites([...favorites, product.id]);
-        await setDoc(favoriteRef, {
-          username,
+        // Add the product to favorites
+        const newFavorite = {
           productId: product.id,
           productName: product.description,
-          favoritedAt: new Date().toISOString(), // Timestamp for when it was favorited
-        });
+          favoritedAt: new Date().toISOString(),
+          username: username,
+        };
+        const updatedFavorites = [...currentFavorites, newFavorite];
+        await setDoc(userFavoritesRef, { favorites: updatedFavorites }, { merge: true });
+        setFavorites(updatedFavorites);
         Alert.alert('Favorite Added', `${product.description} has been added to your favorites.`);
       }
     } catch (error) {
-      console.error('Error updating favorites: ', error); // Log any errors
+      console.error('Error updating favorites: ', error);
       Alert.alert('Error', 'Something went wrong while updating favorites.');
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* App logo */}
+      {/* Logo */}
       <Image source={require('../assets/logo.jpg')} style={styles.logo} />
 
-      {/* Navigation bar */}
+      {/* Navigation Bar */}
       <View style={styles.navbar}>
         <TouchableOpacity
           onPress={() => navigation.navigate('Home')}
@@ -95,25 +126,20 @@ const HomeScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Trending products section */}
+      {/* Trending Products */}
       <Text style={styles.trendingHeading}>TRENDING PRODUCTS!!</Text>
 
-      {/* Display products in a table layout */}
+      {/* Product List */}
       <View style={styles.table}>
         {products.map((product) => (
           <View key={product.id} style={styles.tableCell}>
-            {/* Clickable product image */}
-            <TouchableOpacity
-              onPress={() => Linking.openURL(product.link)} // Open product link in browser
-              style={styles.imageContainer}
-            >
-              <Image source={product.image} style={styles.productImage} />
-              {product.isOutOfStock && (
-                <Text style={styles.outOfStockText}>Out of Stock</Text>
-              )}
-            </TouchableOpacity>
+            {/* Product Image */}
+            <Image source={product.image} style={styles.productImage} />
+            {product.isOutOfStock && (
+              <Text style={styles.outOfStockText}>Out of Stock</Text>
+            )}
 
-            {/* Product details and favorite button */}
+            {/* Product Details */}
             <View style={styles.productDetails}>
               <Text style={styles.productDescription}>{product.description}</Text>
               <View style={styles.priceContainer}>
@@ -121,13 +147,17 @@ const HomeScreen = ({ navigation, route }) => {
                 <Text style={styles.discountPrice}>${product.discountPrice}</Text>
               </View>
 
-              {/* Favorite heart button */}
+              {/* Heart Icon */}
               <TouchableOpacity
                 onPress={() => handleFavoriteToggle(product)}
                 style={styles.heartIcon}
               >
-                {/* Change color based on whether the product is favorited */}
-                <Text style={{ color: favorites.includes(product.id) ? 'red' : 'gray', fontSize: 24 }}>
+                <Text
+                  style={{
+                    color: favorites.some((item) => item.productId === product.id) ? 'red' : 'gray',
+                    fontSize: 24,
+                  }}
+                >
                   ♥
                 </Text>
               </TouchableOpacity>
@@ -139,7 +169,6 @@ const HomeScreen = ({ navigation, route }) => {
   );
 };
 
-// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -168,6 +197,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  navItemFirst: {
+    borderLeftWidth: 0,
+  },
+  navItemLast: {
+    borderRightWidth: 0,
+  },
+  navText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   navDivider: {
     width: 1,
     backgroundColor: 'white',
@@ -186,69 +226,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
   },
   tableCell: {
     width: '30%',
-    height: 320,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 5,
+    borderColor: '#ddd',
+    borderRadius: 10,
     padding: 10,
-  },
-  imageContainer: {
-    position: 'relative',
-    width: '100%',
-    height: 160,
-    justifyContent: 'center',
+    marginBottom: 20,
     alignItems: 'center',
-    overflow: 'hidden',
-    marginBottom: 10,
-  },
-  outOfStockText: {
-    position: 'absolute',
-    top: '40%',
-    left: '47%',
-    transform: [{ translateX: -50 }],
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'red',
-    textAlign: 'center',
-    paddingHorizontal: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 5,
   },
   productImage: {
     width: '100%',
-    height: '100%',
+    height: 150,
     resizeMode: 'contain',
   },
+  outOfStockText: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -50 }, { translateY: -50 }],
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    color: 'red',
+    fontWeight: 'bold',
+  },
   productDetails: {
-    width: '100%',
     alignItems: 'center',
   },
   priceContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 5,
   },
   originalPrice: {
-    fontSize: 16,
-    color: '#888',
     textDecorationLine: 'line-through',
+    color: '#888',
     marginRight: 5,
   },
   discountPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
     color: 'green',
+    fontWeight: 'bold',
   },
   heartIcon: {
     marginTop: 10,
-    alignItems: 'center',
   },
 });
 

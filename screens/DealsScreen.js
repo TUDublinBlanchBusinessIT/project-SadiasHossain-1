@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: '#800020',
+    backgroundColor: '#800020', // Burgundy background color
     borderRadius: 10,
     marginBottom: 20,
     paddingVertical: 10,
@@ -115,6 +115,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  navItemFirst: {
+    borderLeftWidth: 0,
+  },
+  navItemLast: {
+    borderRightWidth: 0,
+  },
+  navText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   navDivider: {
     width: 1,
