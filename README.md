@@ -52,3 +52,8 @@ ShopSmart is a mobile app designed to make shopping easier and more fun. It allo
 - Add a search feature for products and deals.
 - Implement push notifications for new deals.
 - Add a dark mode option for user preferences.
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 329552a0db07c89250f0f4239d9f6f5d20a0f551
